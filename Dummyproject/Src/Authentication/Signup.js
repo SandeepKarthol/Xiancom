@@ -1,9 +1,10 @@
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dimensions,
   Image,
+  KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   ScrollView,
@@ -17,7 +18,7 @@ import {
   heightPercentageToDP,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import {sign_upapi} from '../Core/Apis/Services/appService';
+import { sign_upapi } from '../Core/Apis/Services/appService';
 import LoaderComp from '../Core/Components/LoaderComp';
 import NotificationComp from '../Core/Components/NotificationComp';
 import Images from '../Core/Value/Assets/Images';
@@ -25,7 +26,7 @@ import Colors from '../Core/Value/Colors';
 import FontFamily from '../Core/Value/FontFamily';
 import FontSize from '../Core/Value/FontSize';
 
-const Signup = ({route}) => {
+const Signup = ({ route }) => {
   const navigation = useNavigation();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -129,141 +130,126 @@ const Signup = ({route}) => {
     }
   };
 
-  const windowWidth = Dimensions.get('window').width;
-  const imageWidth = windowWidth - 32; // fixed width with 16 padding on each side
-
-  const DynamicHeightImage = ({uri}) => {
-    const [height, setHeight] = useState(heightPercentageToDP(10)); // default height before loading
-
-    useEffect(() => {
-      Image.getSize(
-        uri,
-        (width, height) => {
-          const scaledHeight = (height / width) * imageWidth;
-          setHeight(scaledHeight);
-        },
-        error => {
-          console.error('Failed to get image size:', error);
-        },
-      );
-    }, [uri]);
-
-    return (
-      <Image
-        source={{uri}}
-        style={[styles.image, {width: imageWidth, height}]}
-        resizeMode="cover"
-      />
-    );
-  };
-
   return (
-    <ScrollView
-      contentContainerStyle={{flexGrow: 1}}
-      keyboardShouldPersistTaps="handled">
-      <SafeAreaView style={styles.container}>
-        {/* Back Arrow */}
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
+
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled">
+        <SafeAreaView style={styles.container}>
+          {/* Back Arrow */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.goBack();
+              }}
+              style={styles.backButton}>
+              <Image
+                source={Images.Backicon}
+                style={{
+                  height: wp(5),
+                  width: wp(5),
+                }}
+              />
+            </TouchableOpacity>
+            <Text
+              style={{
+                fontSize: wp(5),
+                fontFamily: FontFamily.poppinsMedium,
+              }}>
+              {' '}
+              Detail screen
+            </Text>
+            <View />
+          </View>
+
+          <View style={{ alignItems: 'center', marginVertical: wp(4) }}>
+            {/* <DynamicHeightImage uri={uri} /> */}
+            <Image source={{ uri: uri }}
+
+              resizeMode='cover'
+              style={{ height: wp(100), width: wp(92) }}
+            />
+          </View>
+
+          {/* Input Fields */}
+          <View style={styles.textview}>
+            <Text style={styles.textstyle}> First Name</Text>
+            <TextInput
+              style={[styles.input, errors.firstName && styles.inputError]}
+              placeholder=""
+              value={firstName}
+              onChangeText={setFirstName}
+            />
+          </View>
+          {errors.firstName && (
+            <Text style={styles.errorText}>{errors.firstName}</Text>
+          )}
+
+          <View style={styles.textview}>
+            <Text style={styles.textstyle}> Last Name</Text>
+            <TextInput
+              style={[styles.input, errors.lastName && styles.inputError]}
+              placeholder=""
+              value={lastName}
+              onChangeText={setLastName}
+            />
+          </View>
+          {errors.lastName && (
+            <Text style={styles.errorText}>{errors.lastName}</Text>
+          )}
+
+          <View style={styles.textview}>
+            <Text style={styles.textstyle}> Email</Text>
+            <TextInput
+              style={[styles.input, errors.email && styles.inputError]}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+            />
+          </View>
+          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+
+          <View style={styles.textview}>
+            <Text style={styles.textstyle}> Mobile Number</Text>
+            <TextInput
+              style={[styles.input, errors.mobileNumber && styles.inputError]}
+              value={mobileNumber}
+              onChangeText={setMobileNumber}
+              keyboardType="phone-pad"
+            />
+          </View>
+
+          {errors.mobileNumber && (
+            <Text style={styles.errorText}>{errors.mobileNumber}</Text>
+          )}
+
           <TouchableOpacity
             onPress={() => {
-              navigation.goBack();
+              sigin_Up_Api();
             }}
-            style={styles.backButton}>
-            <Image
-              source={Images.Backicon}
-              style={{
-                height: wp(5),
-                width: wp(5),
-              }}
-            />
-          </TouchableOpacity>
-          <Text
             style={{
-              fontSize: wp(5),
-              fontFamily: FontFamily.poppinsMedium,
+              alignSelf: 'flex-end',
+              padding: wp(1),
+              borderColor: 'black',
+              borderWidth: wp(0.5),
+              marginTop: wp(2),
+              paddingHorizontal: wp(6),
+              paddingVertical: Platform.OS === 'ios' && wp(2),
+              marginHorizontal: Platform.OS === 'ios' && wp(4)
             }}>
-            {' '}
-            Detail screen
-          </Text>
-          <View />
-        </View>
-
-        <DynamicHeightImage uri={uri} />
-
-        {/* Input Fields */}
-        <View style={styles.textview}>
-          <Text style={styles.textstyle}> First Name</Text>
-          <TextInput
-            style={[styles.input, errors.firstName && styles.inputError]}
-            placeholder=""
-            value={firstName}
-            onChangeText={setFirstName}
-          />
-        </View>
-        {errors.firstName && (
-          <Text style={styles.errorText}>{errors.firstName}</Text>
-        )}
-
-        <View style={styles.textview}>
-          <Text style={styles.textstyle}> Last Name</Text>
-          <TextInput
-            style={[styles.input, errors.lastName && styles.inputError]}
-            placeholder=""
-            value={lastName}
-            onChangeText={setLastName}
-          />
-        </View>
-        {errors.lastName && (
-          <Text style={styles.errorText}>{errors.lastName}</Text>
-        )}
-
-        <View style={styles.textview}>
-          <Text style={styles.textstyle}> Email</Text>
-          <TextInput
-            style={[styles.input, errors.email && styles.inputError]}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-          />
-        </View>
-        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-
-        <View style={styles.textview}>
-          <Text style={styles.textstyle}> Mobile Number</Text>
-          <TextInput
-            style={[styles.input, errors.mobileNumber && styles.inputError]}
-            value={mobileNumber}
-            onChangeText={setMobileNumber}
-            keyboardType="phone-pad"
-          />
-        </View>
-
-        {errors.mobileNumber && (
-          <Text style={styles.errorText}>{errors.mobileNumber}</Text>
-        )}
-
-        <TouchableOpacity
-          onPress={() => {
-            sigin_Up_Api();
-          }}
-          style={{
-            alignSelf: 'flex-end',
-            padding: wp(1),
-            borderColor: 'black',
-            borderWidth: wp(0.5),
-            marginTop: wp(2),
-            paddingHorizontal: wp(6),
-          }}>
-          <Text>Submit</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-      {loaderShow && <LoaderComp />}
-    </ScrollView>
+            <Text>Submit</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+        {loaderShow && <LoaderComp />}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -277,9 +263,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginHorizontal: Platform.OS === 'ios' && wp(4)
   },
   backButton: {
     marginBottom: 10,
+    left: Platform.OS == 'ios' && wp(2.5),
+    right: Platform.OS == 'android' && wp(1.5)
+
   },
 
   input: {
@@ -289,6 +279,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(4),
     borderWidth: wp(0.6),
     width: wp(55),
+    paddingVertical: Platform.OS === 'ios' ? wp(3) : wp(2.5)
   },
   inputError: {
     borderColor: '#ff0000',
@@ -298,7 +289,7 @@ const styles = StyleSheet.create({
     color: '#ff0000',
     fontSize: 12,
     marginBottom: 10,
-    marginTop: -10,
+    marginHorizontal: Platform.OS === 'ios' && wp(6)
   },
   nextButton: {
     backgroundColor: '#00C4B4',
